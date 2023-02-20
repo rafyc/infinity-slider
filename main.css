@@ -41,6 +41,10 @@ body:before {
   width: 1px;
 }
 
+.swiper-wrapper {
+  transition-timing-function: cubic-bezier(1, 0, 0.48, 1);
+}
+
 .swiper {
   height: 0px;
   display: flex;
@@ -112,4 +116,18 @@ img {
   align-items: center;
   height: 30px;
   width: 30px;
+}
+
+.menu {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.menu ul {
+  counter-reset: count;
+  list-style: none;
+}
+
+.menu--item {
+  counter-increment: count;
 }
