@@ -37,120 +37,33 @@ const swiper = new Swiper('.swiper', {
 
 
 
-const $menu = document.querySelector('.menu');
-const $items = document.querySelectorAll('.menu--item');
-let menuHeight = $menu.clientHeight;
-let itemHeight = $items[0].clientHeight;
-let wrapHeight = $items.length * itemHeight;
+var $tickerWrapper = $(".scroll");
+var $list = $tickerWrapper.find("ul.list");
+var $clonedList = $list.clone();
+var listWidth = 0;
 
-let scrollSpeed = 0;
-let oldScrollY = 0;
-let scrollY = 0;
-let y = 0;
-
-
-/*--------------------
-Lerp
---------------------*/
-const lerp = (v0, v1, t) => {
-  return v0 * (1 - t) + v1 * t;
-};
-
-
-/*--------------------
-Dispose
---------------------*/
-const dispose = scroll => {
-  gsap.set($items, {
-    y: i => {
-      return i * itemHeight + scroll;
-    },
-    modifiers: {
-      y: y => {
-        const s = gsap.utils.wrap(-itemHeight, wrapHeight - itemHeight, parseInt(y));
-        return `${s}px`;
-      }
-    }
-  });
-
-
-};
-dispose(0);
-
-
-/*--------------------
-Wheel
---------------------*/
-const handleMouseWheel = e => {
-  scrollY -= e.deltaY;
-};
-
-
-/*--------------------
-Touch
---------------------*/
-let touchStart = 0;
-let touchY = 0;
-let isDragging = false;
-const handleTouchStart = e => {
-  touchStart = e.clientY || e.touches[0].clientY;
-  isDragging = true;
-  $menu.classList.add('is-dragging');
-};
-const handleTouchMove = e => {
-  if (!isDragging) return;
-  touchY = e.clientY || e.touches[0].clientY;
-  scrollY += (touchY - touchStart) * 2.5;
-  touchStart = touchY;
-};
-const handleTouchEnd = () => {
-  isDragging = false;
-  $menu.classList.remove('is-dragging');
-};
-
-
-/*--------------------
-Listeners
---------------------*/
-$menu.addEventListener('mousewheel', handleMouseWheel);
-
-$menu.addEventListener('touchstart', handleTouchStart);
-$menu.addEventListener('touchmove', handleTouchMove);
-$menu.addEventListener('touchend', handleTouchEnd);
-
-$menu.addEventListener('mousedown', handleTouchStart);
-$menu.addEventListener('mousemove', handleTouchMove);
-$menu.addEventListener('mouseleave', handleTouchEnd);
-$menu.addEventListener('mouseup', handleTouchEnd);
-
-$menu.addEventListener('selectstart', () => { return false; });
-
-
-/*--------------------
-Resize
---------------------*/
-window.addEventListener('resize', () => {
-  menuHeight = $menu.clientHeight;
-  itemHeight = $items[0].clientHeight;
-  wrapHeight = $items.length * itemHeight;
+$list.find("li").each(function (i) {
+  listWidth += $(this, i).outerHeight(true);
 });
 
+var endPos = $tickerWrapper.height() - listWidth;
 
-/*--------------------
-Render
---------------------*/
-const render = () => {
-  requestAnimationFrame(render);
-  y = lerp(y, scrollY, .1);
-  dispose(y);
+$list.add($clonedList).css({
+  "height": listWidth + "px"
+});
 
-  scrollSpeed = y - oldScrollY;
-  oldScrollY = y;
+$clonedList.addClass("cloned").appendTo($tickerWrapper);
 
-  gsap.to($items, {
-    scale: 1 - Math.min(100, Math.abs(scrollSpeed)) * .005,
-    rotate: scrollSpeed * 0.2
-  });
+//TimelineMax
+var infinite = new TimelineMax({ repeat: -1, paused: true });
+var time = 20;
 
-};
-render();
+infinite
+  .fromTo($list, time, { rotation: 0.01, y: 0 }, { force3D: true, y: -listWidth, ease: Linear.easeNone }, 0)
+  .fromTo($clonedList, time, { rotation: 0.01, y: listWidth }, { force3D: true, y: 0, ease: Linear.easeNone }, 0)
+  .set($list, { force3D: true, rotation: 0.01, y: listWidth })
+  .to($clonedList, time, { force3D: true, rotation: 0.01, y: -listWidth, ease: Linear.easeNone }, time)
+  .to($list, time, { force3D: true, rotation: 0.01, y: 0, ease: Linear.easeNone }, time)
+  .progress(1).progress(0)
+  .play();
+
