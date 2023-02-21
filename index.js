@@ -33,37 +33,40 @@ const swiper = new Swiper('.swiper', {
 
 });
 
+var fullElement = document.querySelector(".list");
+var fullHeight = fullElement.scrollHeight;
 
+const elements = document.querySelectorAll("h1");
+const singleElement = elements[0];
+const numberElements = elements.length;
+const elementHeight = singleElement.clientHeight;
 
+var listCopy = document.querySelector(".list");
+var clone = listCopy.cloneNode(true);
+clone.className = 'list2';
+listCopy.after(clone);
+console.log("List cloned!");
 
+const heightToTranslate = fullHeight;
+const cloneList = document.querySelector(".list2");
+// cloneList.style.transform = `translate(0px, ${!heightToTranslate}px)`;
+console.log(elementHeight);
 
-var $tickerWrapper = $(".scroll");
-var $list = $tickerWrapper.find("ul.list");
-var $clonedList = $list.clone();
-var listWidth = 0;
+var t1 = new TimelineMax({ paused: true });
+var t2 = new TimelineMax({ paused: true })
 
-$list.find("li").each(function (i) {
-  listWidth += $(this, i).outerHeight(true);
+t1.to(".list h1", { y: elementHeight, duration: 1 })
+t2.fromTo(".list2 h1", { y: -fullHeight }, { y: -fullHeight + elementHeight, duration: 1 })
+
+var itemToClick = document.querySelector(".circle-right");
+itemToClick.addEventListener("click", function () {
+  t1.timeScale(1).play();
+  t2.timeScale(1).play();
 });
 
-var endPos = $tickerWrapper.height() - listWidth;
-
-$list.add($clonedList).css({
-  "height": listWidth + "px"
+var itemToClick = document.querySelector(".circle-left");
+itemToClick.addEventListener("click", function () {
+  t1.timeScale(1).reverse();
+  t2.timeScale(1).reverse();
 });
-
-$clonedList.addClass("cloned").appendTo($tickerWrapper);
-
-//TimelineMax
-var infinite = new TimelineMax({ repeat: -1, paused: true });
-var time = 20;
-
-infinite
-  .fromTo($list, time, { rotation: 0.01, y: 0 }, { force3D: true, y: -listWidth, ease: Linear.easeNone }, 0)
-  .fromTo($clonedList, time, { rotation: 0.01, y: listWidth }, { force3D: true, y: 0, ease: Linear.easeNone }, 0)
-  .set($list, { force3D: true, rotation: 0.01, y: listWidth })
-  .to($clonedList, time, { force3D: true, rotation: 0.01, y: -listWidth, ease: Linear.easeNone }, time)
-  .to($list, time, { force3D: true, rotation: 0.01, y: 0, ease: Linear.easeNone }, time)
-  .progress(1).progress(0)
-  .play();
 
