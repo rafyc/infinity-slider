@@ -1,24 +1,4 @@
 
-// var swiper = new Swiper(".flex-parent", {
-//   loopedSlides: 5,
-//   loop: true,
-//   slidesPerView: "auto",
-//   freeMode: true,
-//   mousewheel: {
-//     releaseOnEdges: true,
-//   },
-// });
-
-// var thumb = document.querySelectorAll(".image");
-
-// thumb.forEach(function (image, index) {
-//   var delay = index * 90;
-//   image.classList.add("fadeInSlide");
-//   image.style.animationDelay = delay + "ms";
-// });
-
-// console.log('hello');
-
 const swiper = new Swiper('.swiper', {
   // Optional parameters
   direction: 'horizontal',
@@ -33,40 +13,50 @@ const swiper = new Swiper('.swiper', {
 
 });
 
-var fullElement = document.querySelector(".list");
-var fullHeight = fullElement.scrollHeight;
 
-const elements = document.querySelectorAll("h1");
-const singleElement = elements[0];
-const numberElements = elements.length;
-const elementHeight = singleElement.clientHeight;
+const list = document.querySelector(".list");
+const li = document.querySelectorAll("li");
+const numberOfItems = li.length;
+const listheight = list.getBoundingClientRect().height
+const elementHeight = li[0].getBoundingClientRect().height
 
-var listCopy = document.querySelector(".list");
-var clone = listCopy.cloneNode(true);
+// gsap.set('.list', { y: `+${elementHeight}px` });
+
+let currentPosition = 0;
+let currentPositionList2 = (elementHeight * 4) * -1;
+let index = 0;
+var clone = list.cloneNode(true);
+
 clone.className = 'list2';
-listCopy.after(clone);
+list.after(clone);
 console.log("List cloned!");
 
-const heightToTranslate = fullHeight;
-const cloneList = document.querySelector(".list2");
-// cloneList.style.transform = `translate(0px, ${!heightToTranslate}px)`;
-console.log(elementHeight);
+const anim = (direction) => {
+  index += direction
+  const nextPosition = currentPosition + direction * elementHeight
+  const nextPositionList2 = (currentPositionList2 + direction * elementHeight);
 
-var t1 = new TimelineMax({ paused: true });
-var t2 = new TimelineMax({ paused: true })
+  gsap.to('.list', { duration: 1, y: nextPosition });
+  gsap.to('.list2', { duration: 1, y: nextPositionList2 });
 
-t1.to(".list h1", { y: elementHeight, duration: 1 })
-t2.fromTo(".list2 h1", { y: -fullHeight }, { y: -fullHeight + elementHeight, duration: 1 })
+  currentPosition = nextPosition;
+  currentPositionList2 = nextPositionList2;
+  console.log(index, 'index');
+  console.log(numberOfItems);
 
-var itemToClick = document.querySelector(".circle-right");
-itemToClick.addEventListener("click", function () {
-  t1.timeScale(1).play();
-  t2.timeScale(1).play();
+  if (index === 1) {
+    let index2 = 3
+    document.querySelector(".list2").style.transform = `translateY(${(elementHeight * index2) * -1}px)`;
+    index -= 1
+  }
+}
+
+$('.button-next').on('click', () => {
+  anim(1);
 });
 
-var itemToClick = document.querySelector(".circle-left");
-itemToClick.addEventListener("click", function () {
-  t1.timeScale(1).reverse();
-  t2.timeScale(1).reverse();
+$('.button-prev').on('click', () => {
+  anim(-1);
 });
+
 
