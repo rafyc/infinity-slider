@@ -30,11 +30,13 @@ var clone = list.cloneNode(true);
 clone.className = 'list2';
 list.after(clone);
 console.log("List cloned!");
+gsap.set('.list2', { duration: 1, y: currentPositionList2 });
 
 const anim = (direction) => {
   index += direction
   const nextPosition = currentPosition + direction * elementHeight
   const nextPositionList2 = (currentPositionList2 + direction * elementHeight);
+
 
   gsap.to('.list', { duration: 1, y: nextPosition });
   gsap.to('.list2', { duration: 1, y: nextPositionList2 });
